@@ -1,0 +1,8 @@
+func foo(x: num, y: str) -> str {
+  print "foo";
+  return "hi";
+}
+
+func bar() {
+  print "bar";
+}
