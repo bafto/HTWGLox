@@ -16,6 +16,7 @@ import parser.HTWGLoxParser.Bool_or_exprContext;
 import parser.HTWGLoxParser.Call_exprContext;
 import parser.HTWGLoxParser.Comparison_exprContext;
 import parser.HTWGLoxParser.Equality_exprContext;
+import parser.HTWGLoxParser.Expression_stmtContext;
 import parser.HTWGLoxParser.Factor_exprContext;
 import parser.HTWGLoxParser.For_stmtContext;
 import parser.HTWGLoxParser.Func_declContext;
@@ -141,6 +142,13 @@ public class Program implements Node {
     public void exitReturn_stmt(Return_stmtContext ctx) {
       if (ctx.expression() != null) {
         nodes.add(new ReturnStmt((Expression) nodes.pop()));
+      }
+    }
+
+    @Override
+    public void exitExpression_stmt(Expression_stmtContext ctx) {
+      if (ctx.expression() != null) {
+        nodes.add(new ExprStmt((Expression) nodes.pop()));
       }
     }
 
