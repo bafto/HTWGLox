@@ -224,13 +224,13 @@ parser grammar HTWGLoxParser;
 
 options { tokenVocab=HTWGLoxLexer; }
 
-program         : ( declaration | statement | expression )* EOF ;
+program         : ( declaration | statement )* EOF ;
 
 // declarations
 
 declaration     : func_decl | var_decl ;
 
-func_decl       : 'func' IDENTIFIER '(' param_list ')' '->' type block_stmt ;
+func_decl       : 'func' IDENTIFIER '(' param_list ')' ('->' type)? block_stmt ;
 
 param_list      : ( typed_name (',' typed_name)* )? ;
 
@@ -242,11 +242,11 @@ type            : NUM | STR | BOOL ;
 
 // statements
 
-statement       : print_stmt | if_stmt | for_stmt | assign_stmt | return_stmt | block_stmt ;
+statement       : print_stmt | if_stmt | for_stmt | assign_stmt | return_stmt | expression_stmt | block_stmt ;
 
 print_stmt      : 'print' expression ';' ;
 
-if_stmt         : 'if' expression statement 'else' statement ;
+if_stmt         : 'if' expression statement ('else' statement)? ;
 
 for_stmt        : 'for' var_decl? expression ';' assign? block_stmt ;
 
@@ -256,6 +256,8 @@ assign          : IDENTIFIER '=' expression ;
 
 return_stmt     : 'return' expression ';' ;
 
+expression_stmt : expression ';' ;
+
 block_stmt      : '{' statement* '}' ;
 
 // expressions
@@ -263,32 +265,33 @@ block_stmt      : '{' statement* '}' ;
 expression      : bool_or_expr ;
 
 bool_or_expr    : bool_and_expr |
-                bool_or_expr '||' bool_or_expr  ;
+                bool_or_expr BOOL_OR bool_or_expr  ;
 
 bool_and_expr   : equality_expr |
-                bool_and_expr '&&' bool_and_expr ;
+                bool_and_expr BOOL_AND bool_and_expr ;
 
 equality_expr   : comparison_expr |
-                equality_expr '==' equality_expr |
-                equality_expr '!=' equality_expr ;
+                equality_expr EQUAL equality_expr |
+                equality_expr UNEQUAL equality_expr ;
 
 comparison_expr : term_expr |
-                  comparison_expr '<=' comparison_expr |
-                  comparison_expr '>=' comparison_expr |
-                  comparison_expr '<' comparison_expr |
-                  comparison_expr '>' comparison_expr ;
+                  comparison_expr LESS_EQUAL comparison_expr |
+                  comparison_expr GREATER_EQUAL comparison_expr |
+                  comparison_expr LESS comparison_expr |
+                  comparison_expr GREATER comparison_expr ;
 
 term_expr       : factor_expr |
-                  term_expr '+' term_expr |
-                  term_expr '-' term_expr ;
+                  term_expr PLUS term_expr |
+                  term_expr MINUS term_expr ;
 
 factor_expr     : negation_expr |
-                  factor_expr '*' factor_expr |
-                  factor_expr '/' factor_expr |
-                  factor_expr '%' factor_expr ;
+                  factor_expr STAR factor_expr |
+                  factor_expr SLASH factor_expr |
+                  factor_expr PERCENT factor_expr ;
 
 negation_expr   : call_expr |
-                  '!' negation_expr ;
+                  MINUS negation_expr |
+                  EXCLAMATION_MARK negation_expr ;
 
 call_expr       : primary_expr | 
                   IDENTIFIER '(' arg_list ')' ;
@@ -306,3 +309,117 @@ Der ParseTree des oben gezeigten Hello-World ist denkbar simpel:
 ![Hello World](hello_world_gui.png)
 Der ParseTree für FizzBuzz ist schon deutlich größer:
 ![FizzBuzz](fizz_buzz_gui.png)
+
+Um den Daraus generierten ParseTree in einen AST umzuwandeln habe ich folgende Klassen definiert:
+- AssignStmt.java
+- BinaryExpr.java
+- BlockStmt.java
+- BoolLiteral.java
+- CallExpr.java
+- Declaration.java
+- ExprStmt.java
+- Expression.java
+- ForStmt.java
+- FuncDecl.java
+- Identifier.java
+- IfStmt.java
+- Node.java
+- NumberLiteral.java
+- PrintStmt.java
+- Program.java
+- ReturnStmt.java
+- Statement.java
+- StringLiteral.java
+- Type.java
+- UnaryExpr.java
+- VarDecl.java
+
+Diese Klassen sehen Beispielweise so aus:
+```java
+package ast;
+
+public class BinaryExpr implements Expression {
+  public final Expression lhs;
+  public final BinaryOp op;
+  public final Expression rhs;
+
+  public BinaryExpr(final Expression lhs, final BinaryOp op, final Expression rhs) {
+    this.lhs = lhs;
+    this.op = op;
+    this.rhs = rhs;
+  }
+
+  public String toString() {
+    return String.format(
+        "BinaryExpr(lhs = %s, op = %s, rhs = %s)", lhs.toString(), op.toString(), rhs.toString());
+  }
+
+  enum BinaryOp {
+    PLUS,
+    MINUS,
+    MULT,
+    DIV,
+    MOD,
+    EQUAL,
+    UNEQUAL,
+    LESS,
+    GREATER,
+    LESS_EQUAL,
+    GREATER_EQUAL,
+    AND,
+    OR,
+  }
+}
+```
+und werden beispielweise so aus dem ParseTree generiert:
+
+```java
+    @Override
+    public void exitComparison_expr(Comparison_exprContext ctx) {
+      if (ctx.LESS_EQUAL() != null) {
+        Expression rhs = (Expression) nodes.pop();
+        Expression lhs = (Expression) nodes.pop();
+        nodes.add(new BinaryExpr(lhs, BinaryOp.LESS_EQUAL, rhs));
+      } else if (ctx.GREATER_EQUAL() != null) {
+        Expression rhs = (Expression) nodes.pop();
+        Expression lhs = (Expression) nodes.pop();
+        nodes.add(new BinaryExpr(lhs, BinaryOp.GREATER_EQUAL, rhs));
+      } else if (ctx.LESS() != null) {
+        Expression rhs = (Expression) nodes.pop();
+        Expression lhs = (Expression) nodes.pop();
+        nodes.add(new BinaryExpr(lhs, BinaryOp.LESS, rhs));
+      } else if (ctx.GREATER() != null) {
+        Expression rhs = (Expression) nodes.pop();
+        Expression lhs = (Expression) nodes.pop();
+        nodes.add(new BinaryExpr(lhs, BinaryOp.GREATER, rhs));
+      }
+    }
+```
+
+Die oben gezeigten Hello-World und FizzBuzz Programme sehen als AST nun so aus:
+
+HelloWorld AST:
+```
+Program.printString() = Program(nodes = PrintStmt(rhs = StringLiteral(val = Hello World));)
+```
+
+FizzBuzz AST:
+```
+Program.printString() = Program(nodes = ForStmt(decl = VarDecl(name = Identifier(name = i), type = NUM, initializer = Numbe
+rLiteral(val = 1.00000)), condition = BinaryExpr(lhs = Identifier(name = i), op = LESS, rhs = NumberLiteral(val = 30.0000))
+, end_stmt = AssignStmt(name = Identifier(name = i), Expr = BinaryExpr(lhs = Identifier(name = i), op = PLUS, rhs = NumberL
+iteral(val = 1.00000))), body = BlockStmt(IfStmt(condition = BinaryExpr(lhs = BinaryExpr(lhs = BinaryExpr(lhs = Identifier(
+name = i), op = MOD, rhs = NumberLiteral(val = 5.00000)), op = EQUAL, rhs = NumberLiteral(val = 0.00000)), op = AND, rhs = 
+BinaryExpr(lhs = BinaryExpr(lhs = Identifier(name = i), op = MOD, rhs = NumberLiteral(val = 3.00000)), op = EQUAL, rhs = Nu
+mberLiteral(val = 0.00000))), body = BlockStmt(PrintStmt(rhs = StringLiteral(val = FizzBuzz));), else_body = IfStmt(conditi
+on = BinaryExpr(lhs = BinaryExpr(lhs = Identifier(name = i), op = MOD, rhs = NumberLiteral(val = 3.00000)), op = EQUAL, rhs
+ = NumberLiteral(val = 3.00000)), body = BlockStmt(PrintStmt(rhs = StringLiteral(val = Fizz));), else_body = IfStmt(conditi
+on = BinaryExpr(lhs = BinaryExpr(lhs = Identifier(name = i), op = MOD, rhs = NumberLiteral(val = 5.00000)), op = EQUAL, rhs
+ = NumberLiteral(val = 0.00000)), body = BlockStmt(PrintStmt(rhs = StringLiteral(val = Buzz));), else_body = BlockStmt(Prin
+tStmt(rhs = Identifier(name = i));))));));)
+```
+
+Wie man sieht werden im AST einige Terminale und Nichtterminale weggelassen.
+Zum Beispiel aus den langen `equality_expr` Ästen werden einzelne BinaryExpr, die dann direkt die Literale als Kinder haben.
+Nichtterminale wie `typed_name` werden ganz weggelassen, da sie in der grammatik nur wegen der Lesbarkeit und Wiederverwendbarkeit
+vorhanden waren. 
