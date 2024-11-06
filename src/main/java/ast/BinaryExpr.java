@@ -11,7 +11,7 @@ public class BinaryExpr implements Expression {
     this.rhs = rhs;
   }
 
-  public <T> T accept(ExpressionVisitor<T> visitor) {
+  public <T> T accept(Visitor<T> visitor) {
     return visitor.visitBinaryExpr(this);
   }
 

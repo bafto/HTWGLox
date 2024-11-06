@@ -1,5 +1,7 @@
 func foo(x: num, y: str) -> str {
   print "foo";
+  print x;
+  print z;
   return "hi";
 }
 

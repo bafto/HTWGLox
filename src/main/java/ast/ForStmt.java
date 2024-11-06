@@ -19,7 +19,7 @@ public class ForStmt implements Statement {
     this.body = body;
   }
 
-  public <T> T accept(StatementVisitor<T> visitor) {
+  public <T> T accept(Visitor<T> visitor) {
     return visitor.visitForStmt(this);
   }
 

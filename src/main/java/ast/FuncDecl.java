@@ -19,8 +19,13 @@ public class FuncDecl implements Declaration {
     this.returnType = returnType;
   }
 
-  public <T> T accept(DeclarationVisitor<T> visitor) {
+  public <T> T accept(Visitor<T> visitor) {
     return visitor.visitFuncDecl(this);
+  }
+
+  @Override
+  public String name() {
+    return this.name.name;
   }
 
   public String toString() {

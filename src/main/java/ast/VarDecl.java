@@ -13,8 +13,13 @@ public class VarDecl implements Declaration {
     this.initializer = initializer;
   }
 
-  public <T> T accept(DeclarationVisitor<T> visitor) {
+  public <T> T accept(Visitor<T> visitor) {
     return visitor.visitVarDecl(this);
+  }
+
+  @Override
+  public String name() {
+    return this.name.name;
   }
 
   public String toString() {

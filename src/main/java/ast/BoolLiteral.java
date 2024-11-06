@@ -7,7 +7,7 @@ public class BoolLiteral implements Expression {
     this.value = val;
   }
 
-  public <T> T accept(ExpressionVisitor<T> visitor) {
+  public <T> T accept(Visitor<T> visitor) {
     return visitor.visitBoolLiteral(this);
   }
 

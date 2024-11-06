@@ -7,7 +7,7 @@ public class ExprStmt implements Statement {
     this.expr = expr;
   }
 
-  public <T> T accept(StatementVisitor<T> visitor) {
+  public <T> T accept(Visitor<T> visitor) {
     return visitor.visitExprStmt(this);
   }
 

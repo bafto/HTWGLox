@@ -7,7 +7,7 @@ public class Identifier implements Expression {
     this.name = name;
   }
 
-  public <T> T accept(ExpressionVisitor<T> visitor) {
+  public <T> T accept(Visitor<T> visitor) {
     return visitor.visitIdentifier(this);
   }
 

@@ -1,4 +1,5 @@
 import ast.Program;
+import ast.Resolver;
 import java.io.IOException;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -19,5 +20,9 @@ public class HTWGLox {
 
     Program ast = new Program.Builder().build(tree);
     System.out.printf("Program.printString() = %s%n", ast.toString());
+    Resolver r = new Resolver(ast);
+    for (String e : r.getErrors()) {
+      System.out.println(e);
+    }
   }
 }

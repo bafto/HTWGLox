@@ -9,7 +9,7 @@ public class BlockStmt implements Statement {
     this.statements = statements;
   }
 
-  public <T> T accept(StatementVisitor<T> visitor) {
+  public <T> T accept(Visitor<T> visitor) {
     return visitor.visitBlockStmt(this);
   }
 

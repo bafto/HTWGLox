@@ -7,7 +7,7 @@ public class ReturnStmt implements Statement {
     this.rhs = rhs;
   }
 
-  public <T> T accept(StatementVisitor<T> visitor) {
+  public <T> T accept(Visitor<T> visitor) {
     return visitor.visitReturnStmt(this);
   }
 

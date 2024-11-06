@@ -7,7 +7,7 @@ public class PrintStmt implements Statement {
     this.rhs = rhs;
   }
 
-  public <T> T accept(StatementVisitor<T> visitor) {
+  public <T> T accept(Visitor<T> visitor) {
     return visitor.visitPrintStmt(this);
   }
 

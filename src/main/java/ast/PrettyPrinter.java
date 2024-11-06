@@ -1,6 +1,6 @@
 package ast;
 
-public class PrettyPrinter extends FullVisitor<String> {
+public class PrettyPrinter implements Visitor<String> {
   StringBuilder builder;
 
   public String prettyPrint(Program p) {

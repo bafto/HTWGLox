@@ -9,7 +9,7 @@ public class UnaryExpr implements Expression {
     this.op = op;
   }
 
-  public <T> T accept(ExpressionVisitor<T> visitor) {
+  public <T> T accept(Visitor<T> visitor) {
     return visitor.visitUnaryExpr(this);
   }
 

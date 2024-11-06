@@ -13,7 +13,7 @@ public class IfStmt implements Statement {
     this.else_body = else_body;
   }
 
-  public <T> T accept(StatementVisitor<T> visitor) {
+  public <T> T accept(Visitor<T> visitor) {
     return visitor.visitIfStmt(this);
   }
 

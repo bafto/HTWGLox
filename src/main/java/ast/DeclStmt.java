@@ -7,7 +7,7 @@ public class DeclStmt implements Statement {
     this.decl = decl;
   }
 
-  public <T> T accept(StatementVisitor<T> visitor) {
+  public <T> T accept(Visitor<T> visitor) {
     return visitor.visitDeclStmt(this);
   }
 

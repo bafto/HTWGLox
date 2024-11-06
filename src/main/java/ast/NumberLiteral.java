@@ -7,7 +7,7 @@ public class NumberLiteral implements Expression {
     this.value = val;
   }
 
-  public <T> T accept(ExpressionVisitor<T> visitor) {
+  public <T> T accept(Visitor<T> visitor) {
     return visitor.visitNumberLiteral(this);
   }
 

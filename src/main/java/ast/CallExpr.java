@@ -11,7 +11,7 @@ public class CallExpr implements Expression {
     this.args = args;
   }
 
-  public <T> T accept(ExpressionVisitor<T> visitor) {
+  public <T> T accept(Visitor<T> visitor) {
     return visitor.visitCallExpr(this);
   }
 
