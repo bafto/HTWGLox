@@ -19,6 +19,10 @@ public class ForStmt implements Statement {
     this.body = body;
   }
 
+  public <T> T accept(StatementVisitor<T> visitor) {
+    return visitor.visitForStmt(this);
+  }
+
   public String toString() {
     return String.format(
         "ForStmt(decl = %s, condition = %s, end_stmt = %s, body = %s)",

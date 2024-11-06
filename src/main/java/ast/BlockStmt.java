@@ -9,6 +9,10 @@ public class BlockStmt implements Statement {
     this.statements = statements;
   }
 
+  public <T> T accept(StatementVisitor<T> visitor) {
+    return visitor.visitBlockStmt(this);
+  }
+
   public String toString() {
     StringBuilder builder = new StringBuilder("BlockStmt(");
     for (Statement s : statements) {

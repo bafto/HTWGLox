@@ -9,6 +9,10 @@ public class UnaryExpr implements Expression {
     this.op = op;
   }
 
+  public <T> T accept(ExpressionVisitor<T> visitor) {
+    return visitor.visitUnaryExpr(this);
+  }
+
   public String toString() {
     return String.format("UnaryExpr(rhs = %s, op = %s)", rhs, op);
   }

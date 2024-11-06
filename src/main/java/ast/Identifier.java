@@ -7,6 +7,10 @@ public class Identifier implements Expression {
     this.name = name;
   }
 
+  public <T> T accept(ExpressionVisitor<T> visitor) {
+    return visitor.visitIdentifier(this);
+  }
+
   public String toString() {
     return String.format("Identifier(name = %s)", name);
   }

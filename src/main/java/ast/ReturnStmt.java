@@ -7,6 +7,10 @@ public class ReturnStmt implements Statement {
     this.rhs = rhs;
   }
 
+  public <T> T accept(StatementVisitor<T> visitor) {
+    return visitor.visitReturnStmt(this);
+  }
+
   public String toString() {
     return String.format("ReturnStmt(rhs = %s)", rhs);
   }

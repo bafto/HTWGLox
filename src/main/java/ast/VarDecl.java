@@ -13,6 +13,10 @@ public class VarDecl implements Declaration {
     this.initializer = initializer;
   }
 
+  public <T> T accept(DeclarationVisitor<T> visitor) {
+    return visitor.visitVarDecl(this);
+  }
+
   public String toString() {
     return String.format(
         "VarDecl(name = %s, type = %s, initializer = %s)",

@@ -7,6 +7,10 @@ public class BoolLiteral implements Expression {
     this.value = val;
   }
 
+  public <T> T accept(ExpressionVisitor<T> visitor) {
+    return visitor.visitBoolLiteral(this);
+  }
+
   public String toString() {
     return String.format("BoolList(val = %b)", value);
   }

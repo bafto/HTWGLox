@@ -13,6 +13,10 @@ public class IfStmt implements Statement {
     this.else_body = else_body;
   }
 
+  public <T> T accept(StatementVisitor<T> visitor) {
+    return visitor.visitIfStmt(this);
+  }
+
   public String toString() {
     return String.format(
         "IfStmt(condition = %s, body = %s, else_body = %s)",

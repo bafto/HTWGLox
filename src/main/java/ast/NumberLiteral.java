@@ -7,6 +7,10 @@ public class NumberLiteral implements Expression {
     this.value = val;
   }
 
+  public <T> T accept(ExpressionVisitor<T> visitor) {
+    return visitor.visitNumberLiteral(this);
+  }
+
   public String toString() {
     return String.format("NumberLiteral(val = %g)", value);
   }

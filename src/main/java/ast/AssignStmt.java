@@ -9,6 +9,10 @@ public class AssignStmt implements Statement {
     this.rhs = rhs;
   }
 
+  public <T> T accept(StatementVisitor<T> visitor) {
+    return visitor.visitAssignStmt(this);
+  }
+
   public String toString() {
     return String.format("AssignStmt(name = %s, Expr = %s)", lhs.toString(), rhs.toString());
   }

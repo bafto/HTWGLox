@@ -7,6 +7,10 @@ public class ExprStmt implements Statement {
     this.expr = expr;
   }
 
+  public <T> T accept(StatementVisitor<T> visitor) {
+    return visitor.visitExprStmt(this);
+  }
+
   public String toString() {
     return String.format("ExprStmt(rhs = %s)", expr);
   }

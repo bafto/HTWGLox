@@ -11,6 +11,10 @@ public class CallExpr implements Expression {
     this.args = args;
   }
 
+  public <T> T accept(ExpressionVisitor<T> visitor) {
+    return visitor.visitCallExpr(this);
+  }
+
   public String toString() {
     StringBuilder builder = new StringBuilder(String.format("CallExpr(callee = %s, ", callee));
     for (Expression e : args) {

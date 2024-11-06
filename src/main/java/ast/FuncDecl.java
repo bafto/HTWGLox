@@ -19,6 +19,10 @@ public class FuncDecl implements Declaration {
     this.returnType = returnType;
   }
 
+  public <T> T accept(DeclarationVisitor<T> visitor) {
+    return visitor.visitFuncDecl(this);
+  }
+
   public String toString() {
     StringBuilder builder = new StringBuilder(String.format("FuncDecl(name = %s, params = ", name));
     for (VarDecl d : params) {

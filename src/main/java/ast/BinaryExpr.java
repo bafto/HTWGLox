@@ -11,6 +11,10 @@ public class BinaryExpr implements Expression {
     this.rhs = rhs;
   }
 
+  public <T> T accept(ExpressionVisitor<T> visitor) {
+    return visitor.visitBinaryExpr(this);
+  }
+
   public String toString() {
     return String.format(
         "BinaryExpr(lhs = %s, op = %s, rhs = %s)", lhs.toString(), op.toString(), rhs.toString());
