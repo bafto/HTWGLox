@@ -2,7 +2,7 @@ parser grammar HTWGLoxParser;
 
 options { tokenVocab=HTWGLoxLexer; }
 
-program         : ( declaration | statement )* EOF ;
+program         : ( statement )* EOF ;
 
 // declarations
 
@@ -20,7 +20,7 @@ type            : NUM | STR | BOOL ;
 
 // statements
 
-statement       : print_stmt | if_stmt | for_stmt | assign_stmt | return_stmt | expression_stmt | block_stmt ;
+statement       : print_stmt | if_stmt | for_stmt | assign_stmt | return_stmt | expression_stmt | declaration_stmt | block_stmt ;
 
 print_stmt      : 'print' expression ';' ;
 
@@ -35,6 +35,8 @@ assign          : IDENTIFIER '=' expression ;
 return_stmt     : 'return' expression ';' ;
 
 expression_stmt : expression ';' ;
+
+declaration_stmt: declaration ;
 
 block_stmt      : '{' statement* '}' ;
 

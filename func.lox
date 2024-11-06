@@ -2,9 +2,12 @@ func foo(x: num, y: str) -> str {
   print "foo";
   print x;
   print z;
+  if x == 0 {
+    var z: num = 10;
+    var x: num = 10;
+    print z;
+    print x;
+  }
   return "hi";
 }
 
-func bar() {
-  print "bar";
-}

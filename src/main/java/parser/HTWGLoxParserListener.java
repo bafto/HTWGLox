@@ -158,6 +158,16 @@ public interface HTWGLoxParserListener extends ParseTreeListener {
 	 */
 	void exitExpression_stmt(HTWGLoxParser.Expression_stmtContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link HTWGLoxParser#declaration_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterDeclaration_stmt(HTWGLoxParser.Declaration_stmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link HTWGLoxParser#declaration_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitDeclaration_stmt(HTWGLoxParser.Declaration_stmtContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link HTWGLoxParser#block_stmt}.
 	 * @param ctx the parse tree
 	 */

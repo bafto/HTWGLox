@@ -131,6 +131,7 @@ a)
 
 Ich habe als Basis für meine Sprache [Lox](https://craftinginterpreters.com/the-lox-language.html) gewählt und habe vor
 dieses um Operatoren und Typisierung zu erweitern um am Ende bei der noch nicht finalen Sprache "HTWGLox" herauszukommen.
+Der Code kann auf [Github](https://github.com/bafto/HTWGLox) gefunden werden.
 
 Ein Hello-World in HTWGLox sieht so aus:
 ```
@@ -423,3 +424,167 @@ Wie man sieht werden im AST einige Terminale und Nichtterminale weggelassen.
 Zum Beispiel aus den langen `equality_expr` Ästen werden einzelne BinaryExpr, die dann direkt die Literale als Kinder haben.
 Nichtterminale wie `typed_name` werden ganz weggelassen, da sie in der grammatik nur wegen der Lesbarkeit und Wiederverwendbarkeit
 vorhanden waren. 
+
+# Aufgabe 3
+
+## a)
+
+Die statische Semantik in HTWGLox besteht hauptsächlich aus der Zuordnung der Variablen- und Funktion-Namen in Scopes.
+Scopes funktionieren wie in den meisten Sprachen der C-Familie:
+Jeder Name muss definiert worden sein bevor er benutzt werden kann:
+
+```lox
+print x; // Fehler, x noch nicht definiert
+var x: num = 10;
+{
+    print x; // alles gut
+}
+```
+
+Namen dürfen nicht mehrmals im selben scope definiert werden, können aber in sub-scopes überschrieben werden:
+
+```lox
+func foo() {
+    print "foo";
+}
+var foo: num = 10; // Fehler, "foo" bereits definiert
+{
+    var foo: num = 10; // alles gut
+    print foo;
+}
+```
+
+Da alle Namen von oben nach unten in korrekter Reihenfolge definiert sein müssen, könnte man diese Regeln bereits
+beim erstellen des ASTs prüfen. Ich habe mich allerdings dazu entschieden einen separaten `Resolver` zu implementieren
+um die AST erstelling kleiner zu halten.
+Außerdem kam ich so bereits dazu das Visitor-Pattern umzusetzen, was ich später für einen Interpreter sowieso brauchen werde.
+
+Das Visitor-Pattern besteht hauptsächlich aus dem Visitor-Interface:
+```java
+public interface Visitor<T> {
+  private T visit(Node n) {
+    if (n != null) {
+      return n.accept(this);
+    }
+    return null;
+  }
+
+  public default T visitFuncDecl(FuncDecl stmt) {
+    visit(stmt.body);
+    return null;
+  }
+
+  public default T visitVarDecl(VarDecl stmt) {
+    visit(stmt.initializer);
+    return null;
+  }
+
+  public default T visitIdentifier(Identifier expr) {
+    return null;
+  }
+
+  public default T visitUnaryExpr(UnaryExpr expr) {
+    visit(expr.rhs);
+    return null;
+  }
+
+  public default T visitBinaryExpr(BinaryExpr expr) {
+    visit(expr.rhs);
+    visit(expr.lhs);
+    return null;
+  }
+
+  public default T visitStringLiteral(StringLiteral expr) {
+    return null;
+  }
+
+  public default T visitNumberLiteral(NumberLiteral expr) {
+    return null;
+  }
+
+  public default T visitBoolLiteral(BoolLiteral expr) {
+    return null;
+  }
+
+  public default T visitCallExpr(CallExpr expr) {
+    for (var n : expr.args) {
+      visit(n);
+    }
+    return null;
+  }
+
+  public default T visitAssignStmt(AssignStmt stmt) {
+    visit(stmt.rhs);
+    return null;
+  }
+
+  public default T visitBlockStmt(BlockStmt stmt) {
+    for (var s : stmt.statements) {
+      visit(s);
+    }
+    return null;
+  }
+
+  public default T visitExprStmt(ExprStmt stmt) {
+    visit(stmt.expr);
+    return null;
+  }
+
+  public default T visitForStmt(ForStmt stmt) {
+    visit(stmt.decl);
+    visit(stmt.condition);
+    visit(stmt.body);
+    visit(stmt.end_stmt);
+    return null;
+  }
+
+  public default T visitIfStmt(IfStmt stmt) {
+    visit(stmt.condition);
+    visit(stmt.body);
+    visit(stmt.else_body);
+    return null;
+  }
+
+  public default T visitPrintStmt(PrintStmt stmt) {
+    visit(stmt.rhs);
+    return null;
+  }
+
+  public default T visitReturnStmt(ReturnStmt stmt) {
+    visit(stmt.rhs);
+    return null;
+  }
+
+  public default T visitDeclStmt(DeclStmt stmt) {
+    visit(stmt.decl);
+    return null;
+  }
+}
+```
+
+Jede AST-Node muss nun die Accept Methode implementieren:
+```java
+public interface Node {
+  public <T> T accept(Visitor<T> visitor);
+}
+
+// ...
+
+public interface Expression extends Node {}
+
+// ...
+
+public class BinaryExpr implements Expression {
+  // ...
+
+  public <T> T accept(Visitor<T> visitor) {
+    return visitor.visitBinaryExpr(this);
+  }
+
+  // ...
+```
+
+Die Resolver Klasse implementiert nun einen Teil dieses Interfaces:
+```java
+
+```

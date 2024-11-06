@@ -196,6 +196,18 @@ public class HTWGLoxParserBaseListener implements HTWGLoxParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterDeclaration_stmt(HTWGLoxParser.Declaration_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDeclaration_stmt(HTWGLoxParser.Declaration_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterBlock_stmt(HTWGLoxParser.Block_stmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
