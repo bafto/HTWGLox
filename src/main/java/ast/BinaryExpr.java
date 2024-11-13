@@ -20,7 +20,7 @@ public class BinaryExpr implements Expression {
         "BinaryExpr(lhs = %s, op = %s, rhs = %s)", lhs.toString(), op.toString(), rhs.toString());
   }
 
-  enum BinaryOp {
+  public static enum BinaryOp {
     PLUS,
     MINUS,
     MULT,

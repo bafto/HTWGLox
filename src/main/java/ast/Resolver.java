@@ -89,6 +89,21 @@ public class Resolver implements Visitor<Void> {
   }
 
   @Override
+  public Void visitForStmt(ForStmt stmt) {
+    scopeStart();
+    if (stmt.decl != null) {
+      define(stmt.decl);
+    }
+    resolve(stmt.condition);
+    scopeStart();
+    resolve(stmt.body);
+    scopeEnd();
+    resolve(stmt.end_stmt);
+    scopeEnd();
+    return null;
+  }
+
+  @Override
   public Void visitIdentifier(Identifier ident) {
     int i = 1;
     var scope = scopes.peek();

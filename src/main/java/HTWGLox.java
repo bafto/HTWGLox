@@ -1,5 +1,6 @@
 import ast.Program;
 import ast.Resolver;
+import interpreter.Interpreter;
 import java.io.IOException;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -23,6 +24,10 @@ public class HTWGLox {
     Resolver r = new Resolver(ast);
     for (String e : r.getErrors()) {
       System.out.println(e);
+    }
+    Interpreter i = new Interpreter();
+    for (var stmt : ast.statements) {
+      i.execute(stmt);
     }
   }
 }

@@ -17,7 +17,7 @@ public class UnaryExpr implements Expression {
     return String.format("UnaryExpr(rhs = %s, op = %s)", rhs, op);
   }
 
-  enum UnaryOp {
+  public static enum UnaryOp {
     MINUS,
     NEGATION,
   }
