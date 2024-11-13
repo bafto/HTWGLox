@@ -429,7 +429,8 @@ vorhanden waren.
 
 ## a)
 
-Die statische Semantik in HTWGLox besteht hauptsächlich aus der Zuordnung der Variablen- und Funktion-Namen in Scopes.
+Die statische Semantik in HTWGLox besteht hauptsächlich aus der Zuordnung der Variablen- und Funktion-Namen in Scopes,
+sowie den Typen der Variablen und Werte.
 Scopes funktionieren wie in den meisten Sprachen der C-Familie:
 Jeder Name muss definiert worden sein bevor er benutzt werden kann:
 
@@ -456,7 +457,7 @@ var foo: num = 10; // Fehler, "foo" bereits definiert
 
 Da alle Namen von oben nach unten in korrekter Reihenfolge definiert sein müssen, könnte man diese Regeln bereits
 beim erstellen des ASTs prüfen. Ich habe mich allerdings dazu entschieden einen separaten `Resolver` zu implementieren
-um die AST erstelling kleiner zu halten.
+um die AST erstellung kleiner zu halten.
 Außerdem kam ich so bereits dazu das Visitor-Pattern umzusetzen, was ich später für einen Interpreter sowieso brauchen werde.
 
 Das Visitor-Pattern besteht hauptsächlich aus dem Visitor-Interface:
@@ -586,5 +587,156 @@ public class BinaryExpr implements Expression {
 
 Die Resolver Klasse implementiert nun einen Teil dieses Interfaces:
 ```java
+package ast;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+
+public class Resolver implements Visitor<Void> {
+  private Stack<Map<String, Declaration>> scopes = new Stack<>();
+  private List<String> errors = new ArrayList<>();
+
+  public Resolver(Program p) {
+    resolve(p);
+  }
+
+  public List<String> getErrors() {
+    return errors;
+  }
+
+  private void scopeStart() {
+    scopes.push(new HashMap<>());
+  }
+
+  private void scopeEnd() {
+    scopes.pop();
+  }
+
+  private void define(Declaration decl) {
+    if (decl == null) {
+      return;
+    }
+
+    if (scopes.peek().containsKey(decl.name())) {
+      errors.add(String.format("Name '%s' already defined", decl.name()));
+      return;
+    }
+
+    scopes.peek().put(decl.name(), decl);
+  }
+
+  private void resolve(final Program p) {
+    scopeStart();
+    for (Statement stmt : p.statements) {
+      resolve(stmt);
+    }
+    scopeEnd();
+  }
+
+  private void resolve(final Statement stmt) {
+    if (stmt != null) {
+      stmt.accept(this);
+    }
+  }
+
+  private void resolve(final Expression expr) {
+    if (expr != null) {
+      expr.accept(this);
+    }
+  }
+
+  @Override
+  public Void visitFuncDecl(FuncDecl f) {
+    scopeStart();
+    define(f);
+    for (VarDecl param : f.params) {
+      define(param);
+    }
+    resolve(f.body);
+    scopeEnd();
+    return null;
+  }
+
+  @Override
+  public Void visitVarDecl(VarDecl d) {
+    define(d);
+    resolve(d.initializer);
+    return null;
+  }
+
+  @Override
+  public Void visitBlockStmt(BlockStmt stmt) {
+    scopeStart();
+    for (var s : stmt.statements) {
+      resolve(s);
+    }
+    scopeEnd();
+    return null;
+  }
+
+  @Override
+  public Void visitIdentifier(Identifier ident) {
+    int i = 1;
+    var scope = scopes.peek();
+    while (!scope.containsKey(ident.name)) {
+      if (i >= scopes.size()) {
+        scope = null;
+        break;
+      }
+      scope = scopes.get(scopes.size() - i++);
+    }
+
+    if (scope == null) {
+      errors.add(String.format("Name '%s' not yet defined", ident.name));
+    }
+    return null;
+  }
+}
+```
+
+Die Scopes sind sehr Simpel durch Stacks und Maps dargestellt.
+Der Resolver kann nun so benutzt werden:
+
+```java
+    Program ast = new Program.Builder().build(tree);
+    Resolver r = new Resolver(ast);
+    for (String e : r.getErrors()) {
+      System.out.println(e);
+    }
+```
+
+Hier der Output des Resolvers für eine kleines Beispiel:
+```lox
+func foo(x: num, y: str) -> str {
+  print "foo";
+  print x;
+  print z;
+  if x == 0 {
+    var z: num = 10;
+    var x: num = 10;
+    print z;
+    print x;
+  }
+  return "hi";
+}
+```
+
+Ausgabe:
 
 ```
+Name 'z' not yet defined
+```
+
+Der Resolver erkennt, dass x bereits als Funktions Parameter definiert wurde, z allerdings noch nicht.
+
+Die Überprüfung ob alle Typ-Einschränkungen eingehalten wurden könnte man auf eine ähnliche Weise umsetzten.
+Man würde einen Visitor implementieren, welcher sich wie der Resolver aller Variablen der scopes bewusst ist und ihnen
+ihre Typen zuordnet. Dieser Visitor könnte dann jeder Expression einen Typ zuordnen und so Überprüfen, dass das System stimmig ist.
+Aus Zeit Gründen habe ich mich dagegen entschieden diesen Bereits zu implementieren.
+
+## b)
+
+Als dynamische Semantik habe ich mich entschieden einen kleinen Interpreter für HTWGLox zu implementieren.
