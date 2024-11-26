@@ -62,10 +62,6 @@ public class Interpreter implements Visitor<Object> {
     return scope.get(name);
   }
 
-  private Object getVarValue(String name) {
-    return getScopeValue(name);
-  }
-
   private FuncDecl getFunc(String name) {
     Object o = getScopeValue(name);
     if (o instanceof FuncDecl f) {
@@ -88,9 +84,7 @@ public class Interpreter implements Visitor<Object> {
   }
 
   public Object visitFuncDecl(FuncDecl decl) {
-    scopeStart();
     declareFunc(decl);
-    scopeEnd();
     return null;
   }
 

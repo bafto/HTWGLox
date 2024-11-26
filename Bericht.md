@@ -740,3 +740,103 @@ Aus Zeit Gründen habe ich mich dagegen entschieden diesen Bereits zu implementi
 ## b)
 
 Als dynamische Semantik habe ich mich entschieden einen kleinen Interpreter für HTWGLox zu implementieren.
+Dafür habe ich eine Klasse `Interpreter` geschrieben, die das `Visitor<Object>` interface implementiert.
+
+Hier kann man an Hand es Beispiels eines for-loops gut sehen, wie der Interpreter eine dynamische Semantik implementiert:
+```java
+  public Object visitForStmt(ForStmt stmt) {
+    scopeStart();
+    if (stmt.decl != null) {
+      declareVar(stmt.decl);
+    }
+    while (evaluate(stmt.condition) instanceof Boolean b && b) {
+      scopeStart();
+      execute(stmt.body);
+      scopeEnd();
+      execute(stmt.end_stmt);
+    }
+    scopeEnd();
+    return null;
+  }
+```
+
+Der Interpreter kann die AST nodes auswerten und anhand der Ergebnisse entscheiden, welche als nächstes ausgeführt werden soll.
+Die logik ist ziemlich simpel, unterstütz aber bereits jedes Feature der Sprache, bis auf Funktionsdeklarationen (die mir aufgrund
+der Scoping Regeln vorerst zu kompliziert zu implementieren waren).
+
+Dieser Interpreter kann das fizzbuzz beispiel bereits ausführen, und produziert das folgende Ergebnis:
+
+```lox
+for var i: num = 1; i < 30; i = i + 1 {
+  if i % 5 == 0 && i % 3 == 0 {
+    print "FizzBuzz";
+  } else if i % 3 == 0 {
+    print "Fizz";
+  } else if i % 5 == 0 {
+    print "Buzz";
+  } else {
+    print i;
+  }
+}
+```
+
+```java
+public class HTWGLox {
+  public static void main(String[] args) throws IOException {
+    HTWGLoxLexer lexer = new HTWGLoxLexer(CharStreams.fromStream(System.in));
+    HTWGLoxParser parser = new HTWGLoxParser(new CommonTokenStream(lexer));
+    ParseTree tree = parser.program();
+
+    if (parser.getNumberOfSyntaxErrors() > 0) {
+      System.err.printf("%d error(s) detected%n", parser.getNumberOfSyntaxErrors());
+      System.exit(1);
+    }
+
+    Program ast = new Program.Builder().build(tree);
+    System.out.printf("Program.printString() = %s%n", ast.toString());
+    Resolver r = new Resolver(ast);
+    for (String e : r.getErrors()) {
+      System.out.println(e);
+    }
+    Interpreter i = new Interpreter();
+    for (var stmt : ast.statements) {
+      i.execute(stmt);
+    }
+  }
+}
+```
+
+`mvn exec:java -Dexec.mainClass=HTWGLox < fizzbuzz.lox`
+
+Ausgabe:
+```
+1.0
+2.0
+Fizz
+4.0
+Buzz
+Fizz
+7.0
+8.0
+Fizz
+Buzz
+11.0
+Fizz
+13.0
+14.0
+FizzBuzz
+16.0
+17.0
+Fizz
+19.0
+Buzz
+Fizz
+22.0
+23.0
+Fizz
+Buzz
+26.0
+Fizz
+28.0
+29.0
+```
