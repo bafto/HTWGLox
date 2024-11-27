@@ -840,3 +840,132 @@ Fizz
 28.0
 29.0
 ```
+
+# Aufgabe 4
+
+a) In dem vollständigen Programm sind die eindeutigsten Prozeduralen stellen das schrittweise Aufrufen der einzelnen
+Methoden (Prozeduren), die den Input Stück für Stück zum gewünschten Ergebnis umwandeln.
+Auch das Nutzen der for-loops ist imperativer Stil.
+
+Prozedural.java:
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.LinkedList;
+import java.util.List;
+
+public final class Procedural {
+  private Procedural() {}
+
+  private static final int MIN_LENGTH = 20;
+
+  public static void main(String[] args) throws IOException {
+    var input = Paths.get(args[0]);
+    var lines = new LinkedList<String>();
+
+    long start = System.nanoTime();
+
+    // das aufrufen der einzelnen Methode, die redes mal ihren input verändern ist eindeutig
+    // Prozedural,
+    // da kein neuer Wert zurückgegeben, sondern eine bestehende Variable verändert wird
+    readLines(Files.newBufferedReader(input), lines);
+    removeEmptyLines(lines);
+    removeShortLines(lines);
+    int n = totalLineLengths(lines);
+
+    long stop = System.nanoTime();
+
+    System.out.printf("result = %d (%d microsec)%n", n, (stop - start) / 1000);
+  }
+
+  private static void readLines(final BufferedReader input, final List<String> lines)
+      throws IOException {
+    // loops eindeutig Prozedural
+    for (String line; (line = input.readLine()) != null; ) {
+      lines.add(line); // Seiteneffekt: verändern der Eingabe
+    }
+  }
+
+  private static void removeEmptyLines(final List<String> lines) {
+    // loops eindeutig Prozedural
+    for (var it = lines.iterator(); it.hasNext(); ) {
+      if (it.next().isBlank()) {
+        it.remove(); // Seiteneffekt: verändern der Eingabe
+      }
+    }
+  }
+
+  private static void removeShortLines(final List<String> lines) {
+    // loops eindeutig Prozedural
+    for (var it = lines.iterator(); it.hasNext(); ) {
+      if (it.next().length() < MIN_LENGTH) {
+        it.remove(); // Seiteneffekt: verändern der Eingabe
+      }
+    }
+  }
+
+  private static int totalLineLengths(final List<String> lines) {
+    int n = 0;
+    // loops eindeutig Prozedural
+    for (String line : lines) {
+      n += line.length(); // verändern der variable eindeutig prozedural
+    }
+    return n;
+  }
+}
+```
+
+b) Bei der Funktionalen Variante sind alle Loops und If-Anweisungen verschwunden und wurden durch streams und filter ersetzt.
+Das Programm ist deutlich kürzer, die gesamte Logik ist auf 5 Zeilen geschrumpft.
+
+Functional.java:
+```java
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+public final class Functional {
+  private Functional() {}
+
+  private static final int MIN_LENGTH = 20;
+
+  public static void main(String[] args) throws IOException {
+    var input = Paths.get(args[0]);
+
+    long start = System.nanoTime();
+
+    // Funktionales berechnen des Endergebnisses
+    final int n =
+        Files.lines(input)
+            .filter(line -> !line.isBlank())
+            .filter(line -> line.length() >= MIN_LENGTH)
+            .map(String::length)
+            .reduce(0, (len, acc) -> len + acc);
+
+    long stop = System.nanoTime();
+
+    System.out.printf("result = %d (%d microsec)%n", n, (stop - start) / 1000);
+  }
+}
+```
+
+c) Um die Laufzeit der beiden Programme zu vergleichen habe ich mir Goethes-Faust als Beispiel Text genommen.
+Das Original ist 190 Kilobyte groß, also immer noch recht klein für so einen Test. Ich habe also den Text genommen
+und aneinandergehängt, bis ich das Original, eine 48MB und eine 95MB Version hatte.
+
+Zusätzlich zu den beiden gegebenen Programmen habe ich aus Interesse die Funktionale Variante auch noch
+mit einem .parallel() Stream getestet.
+
+|          | Procedural.java | Functional.java | Functional.java - parallelized   |
+|----------|-----------------|-----------------|-----------------------------------
+| Original |      11 ms      |       9 ms      |           ~17 ms                 |
+| 48 MB    |    ~600 ms      |    ~210 ms      |          ~150 ms                 |
+| 95 MB    |   ~1100 ms      |    ~380 ms      |          ~260 ms                 |
+
+Insgesamt kann man sehen, dass die Funktionale Variante merklich schneller ist als die Prozedurale.
+Vor allem war sie auch deutlich leichter zu parallelisieren. Ich musste einfach `.parallel()` an den Anfang des
+Streams schreiben um das gewünschte Ergebnis zu erzielen. Natürlich hat Parallelisierung bei kleinen Inputs
+einen viel zu großen Overhead um nützlich zu sein, für größere Inputs war sie allerdings sehr hilfreich.
+Das Prozedurale Programm zu parallelisieren hätte einen weitaus größeren Aufwand bedeutet.
