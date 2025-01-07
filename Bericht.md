@@ -969,3 +969,172 @@ Vor allem war sie auch deutlich leichter zu parallelisieren. Ich musste einfach 
 Streams schreiben um das gewünschte Ergebnis zu erzielen. Natürlich hat Parallelisierung bei kleinen Inputs
 einen viel zu großen Overhead um nützlich zu sein, für größere Inputs war sie allerdings sehr hilfreich.
 Das Prozedurale Programm zu parallelisieren hätte einen weitaus größeren Aufwand bedeutet.
+
+# Aufgabe 5
+
+a) Eck-Prolog 25:
+
+|   Liste 1          |   Liste 2            |   Instaziierung                      |
+|-------------       |-------------------   |--------------------------------------|
+| [X, Y, Z]          | [john,likes,fish]    | X = john, Y = likes, Z = fish        |
+| [cat]              | [X &#124; Y]         | X = cat, Y = []                      |
+| [X, Y &#124; Z]    | [mary,likes,wine]    | X = mary, Y = likes, Z = [wine]      |
+| [[the,Y] &#124; Z] | [[X,hare],[is,here]] |  X = the, Y = hare, Z = [[is, here]] |
+| [golden &#124; T]  | [golden,norfolk]     | T = [norfolk]                        |
+| [white,horse]      | [horse, X]           | false                                |
+| [white &#124; Q]   | [ P, horse ]         |  P = white, Q = horse                |
+
+Eck-Prolog 26 (Fakultät):
+
+```prolog
+fak(_, I) :- I < 0, !, false.
+fak(1, 0).
+fak(F, N) :- N1 is N-1, fak(R, N1), F is N * R.
+```
+
+Ergebnis:
+```
+?- fak(F, 0).  % F = 1
+?- fak(F, 1).  % F = 1
+?- fak(F, 6).  % F = 720
+?- fak(F, -1). % false
+```
+
+Eck-Prolog 28 (append):
+
+Beide Anfragen setzten X = [] und Y = [1, 2, 3, 4].
+
+b)
+
+```prolog
+sum([], 0).
+sum([A, B], S) :- S is A+B.
+sum([H|T], S) :- sum(T, S2), S is H + S2.
+```
+
+Ergebnis:
+```
+?- sum([], S).        % S = 0
+?- sum([1], S).       % S = 1
+?- sum([1, 2, 3], S). % S = 6
+```
+
+c)
+
+```prolog
+% zug(Start, Abfahrt, Ziel, Ankunft).
+
+zug(konstanz, 08.39, offenburg, 10.59).
+zug(konstanz, 08.39, karlsruhe, 11.49).
+zug(konstanz, 09.06, singen, 09.31).
+zug(singen, 09.36, stuttgart, 11.32).
+zug(offenburg, 11.28, mannheim, 12.24).
+zug(karlsruhe, 12.06, mainz, 13.47).
+zug(stuttgart, 11.51, mannheim, 12.28).
+zug(mannheim, 12.39, mainz, 13.18).
+
+% verbindung(Start, Abfahrt, Ziel, Reiseplan).
+
+verbindung(Start, Abfahrt, Ziel, [ zug(Start, Ab, Ziel, An) ]) :- 
+    zug(Start, Ab, Ziel, An),
+    Ab >= Abfahrt,
+    An > Ab.
+verbindung(Start, Abfahrt, Ziel, R) :-
+    zug(Umstieg, Uab, Ziel, An),
+    verbindung(Start, Abfahrt, Umstieg, L),
+    append(L, [zug(Umstieg, Uab, Ziel, An)], R).
+```
+Java code:
+
+# Aufgabe 6
+
+```java
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STGroupFile;
+
+public final class Main {
+  private Main() {}
+
+  public static void main(String[] args) throws Exception {
+    List<Class<?>> classes = new ArrayList<>();
+    for (String arg : args) {
+      classes.add(Class.forName(arg));
+    }
+
+    ST templ = new STGroupFile("aufgabe6.stg").getInstanceOf("aufgabe6");
+    templ.add("n", classes);
+    String result = templ.render();
+    System.out.println(result);
+    FileOutputStream out = new FileOutputStream("aufgabe6.html");
+    out.write(result.getBytes());
+    out.close();
+  }
+}
+```
+
+aufgabe6.stg:
+
+```
+// aufgabe6.stg
+delimiters "$", "$"
+
+aufgabe6(n) ::= <<
+<html lang="de">
+<head>
+<style type="text/css">
+th, td { border-bottom: thin solid; padding: 4px; text-align: left; }
+td { font-family: monospace }
+</style>
+</head>
+<body>
+<h1>Sprachkonzepte, Aufgabe 6</h1>
+$n:main(); separator="\n"$
+</body>
+</html>
+>>
+
+main(c) ::= <<
+<td>$if(c.interface)$
+$c:interface(); separator="\n"$
+$else$
+$c:class(); separator="\n"$
+$endif$
+</td>
+>>
+
+class(c) ::= <<
+<h2>class $c.name$:</h2>
+<table>
+<tr><th>Interface</th><th>Methods</th></tr>
+$c.interfaces:interfaces()$
+</table>
+<br>
+>>
+
+interfaces(i) ::= <<
+<tr>
+<td valign=top>$i.name$</td>
+<td>$i.methods:method()$</td>
+</tr>
+>>
+
+method(m) ::= <<
+$m.returnType.name$ $m.name$($m.parameters:parameter(); separator=","$)<br>
+>>
+
+parameter(p) ::= <<
+$p.type.name$
+>>
+
+interface(i) ::= <<
+<h2>interface $c.name$:</h2>
+<table>
+<tr><th>Methods</th></tr>
+<td>$i.methods:method()$</td>
+</table>
+<br>
+>>
+```
