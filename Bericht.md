@@ -42,11 +42,11 @@ WS: [ \t\r\n]+ -> channel(HIDDEN);
 ```
 
 In dieser Grammatik finden sich einige Vokabular-Kategorien aus der Vorlesung, namentlich:
-    - Whitespace (wird hier übersprungen, da nicht relevant)
-    - Identifier (Haltestellen Namen, unbekannte Zug/Bus Arten (wie z.B. "KAT"))
-    - Keywords ("nach", "täglich", "nicht")
-    - Literale (TIME, MONTH, ...)
-    - Symbole (',', ';', etc.)
+  - Whitespace (wird hier übersprungen, da nicht relevant)
+  - Identifier (Haltestellen Namen, unbekannte Zug/Bus Arten (wie z.B. "KAT"))
+  - Keywords ("nach", "täglich", "nicht")
+  - Literale (TIME, MONTH, ...)
+  - Symbole (',', ';', etc.)
 
 Nach einem ersten Versuch fand ich auch herraus, das Regeln, die weiter oben definiert sind eine höhere Precedence haben.
 Die "IDENTIFIER" Regel muss in dieser Grammatik also unter den Literalen stehen,
