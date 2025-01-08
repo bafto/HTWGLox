@@ -1082,6 +1082,7 @@ aufgabe6.stg:
 delimiters "$", "$"
 
 aufgabe6(n) ::= <<
+<!DOCTYPE html>
 <html lang="de">
 <head>
 <style type="text/css">
@@ -1097,12 +1098,11 @@ $n:main(); separator="\n"$
 >>
 
 main(c) ::= <<
-<td>$if(c.interface)$
+$if(c.interface)$
 $c:interface(); separator="\n"$
 $else$
 $c:class(); separator="\n"$
 $endif$
-</td>
 >>
 
 class(c) ::= <<
@@ -1117,7 +1117,7 @@ $c.interfaces:interfaces()$
 interfaces(i) ::= <<
 <tr>
 <td valign=top>$i.name$</td>
-<td>$i.methods:method()$</td>
+<td>$i.methods:method(); separator="\n"$</td>
 </tr>
 >>
 
@@ -1133,10 +1133,87 @@ interface(i) ::= <<
 <h2>interface $c.name$:</h2>
 <table>
 <tr><th>Methods</th></tr>
-<td>$i.methods:method()$</td>
+<td>$i.methods:method(); separator="\n"$</td>
 </table>
 <br>
 >>
+```
+
+Beispielausgabe:
+
+`mvn exec:java -Dexec.mainClass=Main -Dexec.args="java.lang.String java.util.Iterator java.time.Month"`
+
+aufgabe6.html:
+
+```html
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<style type="text/css">
+th, td { border-bottom: thin solid; padding: 4px; text-align: left; }
+td { font-family: monospace }
+</style>
+</head>
+<body>
+<h1>Sprachkonzepte, Aufgabe 6</h1>
+<h2>class java.lang.String:</h2>
+<table>
+<tr><th>Interface</th><th>Methods</th></tr>
+<tr>
+<td valign=top>java.io.Serializable</td>
+<td></td>
+</tr><tr>
+<td valign=top>java.lang.Comparable</td>
+<td>int compareTo(java.lang.Object)<br></td>
+</tr><tr>
+<td valign=top>java.lang.CharSequence</td>
+<td>int length()<br>
+java.lang.String toString()<br>
+int compare(java.lang.CharSequence,java.lang.CharSequence)<br>
+char charAt(int)<br>
+boolean isEmpty()<br>
+java.util.stream.IntStream codePoints()<br>
+java.lang.CharSequence subSequence(int,int)<br>
+java.util.stream.IntStream chars()<br></td>
+</tr><tr>
+<td valign=top>java.lang.constant.Constable</td>
+<td>java.util.Optional describeConstable()<br></td>
+</tr><tr>
+<td valign=top>java.lang.constant.ConstantDesc</td>
+<td>java.lang.Object resolveConstantDesc(java.lang.invoke.MethodHandles$Lookup)<br></td>
+</tr>
+</table>
+<br>
+
+<h2>interface java.util.Iterator:</h2>
+<table>
+<tr><th>Methods</th></tr>
+<td>void remove()<br>
+void forEachRemaining(java.util.function.Consumer)<br>
+boolean hasNext()<br>
+java.lang.Object next()<br></td>
+</table>
+<br>
+
+<h2>class java.time.Month:</h2>
+<table>
+<tr><th>Interface</th><th>Methods</th></tr>
+<tr>
+<td valign=top>java.time.temporal.TemporalAccessor</td>
+<td>int get(java.time.temporal.TemporalField)<br>
+long getLong(java.time.temporal.TemporalField)<br>
+boolean isSupported(java.time.temporal.TemporalField)<br>
+java.lang.Object query(java.time.temporal.TemporalQuery)<br>
+java.time.temporal.ValueRange range(java.time.temporal.TemporalField)<br></td>
+</tr><tr>
+<td valign=top>java.time.temporal.TemporalAdjuster</td>
+<td>java.time.temporal.Temporal adjustInto(java.time.temporal.Temporal)<br></td>
+</tr>
+</table>
+<br>
+
+</body>
+</html>
 ```
 
 ## Aufgabe 7
