@@ -425,9 +425,9 @@ Zum Beispiel aus den langen `equality_expr` Ästen werden einzelne BinaryExpr, d
 Nichtterminale wie `typed_name` werden ganz weggelassen, da sie in der grammatik nur wegen der Lesbarkeit und Wiederverwendbarkeit
 vorhanden waren. 
 
-# Aufgabe 3
+## Aufgabe 3
 
-## a)
+### a)
 
 Die statische Semantik in HTWGLox besteht hauptsächlich aus der Zuordnung der Variablen- und Funktion-Namen in Scopes,
 sowie den Typen der Variablen und Werte.
@@ -737,7 +737,7 @@ Man würde einen Visitor implementieren, welcher sich wie der Resolver aller Var
 ihre Typen zuordnet. Dieser Visitor könnte dann jeder Expression einen Typ zuordnen und so Überprüfen, dass das System stimmig ist.
 Aus Zeit Gründen habe ich mich dagegen entschieden diesen Bereits zu implementieren.
 
-## b)
+### b)
 
 Als dynamische Semantik habe ich mich entschieden einen kleinen Interpreter für HTWGLox zu implementieren.
 Dafür habe ich eine Klasse `Interpreter` geschrieben, die das `Visitor<Object>` interface implementiert.
@@ -841,7 +841,7 @@ Fizz
 29.0
 ```
 
-# Aufgabe 4
+## Aufgabe 4
 
 a) In dem vollständigen Programm sind die eindeutigsten Prozeduralen stellen das schrittweise Aufrufen der einzelnen
 Methoden (Prozeduren), die den Input Stück für Stück zum gewünschten Ergebnis umwandeln.
@@ -970,7 +970,7 @@ Streams schreiben um das gewünschte Ergebnis zu erzielen. Natürlich hat Parall
 einen viel zu großen Overhead um nützlich zu sein, für größere Inputs war sie allerdings sehr hilfreich.
 Das Prozedurale Programm zu parallelisieren hätte einen weitaus größeren Aufwand bedeutet.
 
-# Aufgabe 5
+## Aufgabe 5
 
 a) Eck-Prolog 25:
 
@@ -1046,7 +1046,7 @@ verbindung(Start, Abfahrt, Ziel, R) :-
 ```
 Java code:
 
-# Aufgabe 6
+## Aufgabe 6
 
 ```java
 import java.io.FileOutputStream;
@@ -1138,3 +1138,74 @@ interface(i) ::= <<
 <br>
 >>
 ```
+
+## Aufgabe 7
+
+Als Anwendung habe ich mir einen kleinen Python Webserver genommen, der auf einem von mir gemieteten server
+healthchecks bereitstellt und webhook Anfragen beantwortet.
+
+```python
+@webhook_bp.post("/dockerhub")
+def dockerhub():
+    req = request.get_json(cache=False)
+    tag = req['push_data']['tag']
+    current_app.logger.info(f'got a dockerhub webhook request for tag {tag}: {request.url}')
+
+    req_secret = request.args.get('secret')
+    if req_secret != config.webhook_secrets()['dockerhub']:
+        current_app.logger.warn('dockerhub secret did not match!')
+        return '', 403
+
+    image = f'bafto/hetzner:{tag}'
+    backup_image = f'{image}-backup'
+    try:
+        docker.image.tag(image, backup_image)
+        current_app.logger.info('tagged backup image')
+    except Exception as e:
+        current_app.logger.warn('docker image tag failed: ' + str(e))
+
+    try:
+        docker.compose.pull()
+        current_app.logger.info('pulled images')
+    except Exception as e:
+        current_app.logger.error('docker compose pull failed: ' + str(e))
+        return '', 500
+
+    try:
+        docker.compose.up(detach=True, build=True, wait=True, remove_orphans=True)
+        current_app.logger.info('recreated services')
+    except Exception as e:
+        current_app.logger.error(f'docker compose up failed: {str(e)}\nrolling back to latest working image')
+
+        os.environ[f'{tag}Image'] = backup_image
+
+        try:
+            docker.compose.up(detach=True, build=True)
+            current_app.logger.info('recreated services with backup image')
+        except Exception as e:
+            current_app.logger.error(f'image rollback failed: {str(e)}')
+
+        os.environ[f'{tag}Image'] = image
+        return '', 500
+
+    try:
+        docker.image.prune(all=True)
+        current_app.logger.info('pruned images')
+    except Exception as e:
+        current_app.logger.error('docker image prune failed: ' + str(e))
+        return '', 500
+
+
+    current_app.logger.info('done handling webhook request')
+    return '', 200
+```
+
+Die obige Funktion implementiert den "POST /dockerhub?secret=..." Endpunkt.
+Wenn eine Anfrage kommt wird das secret validiert und wenn es korrekt ist neue Docker Images von Dockerhub
+heruntergeladen und bestehende Container mit den neuen Images neu erstellt.
+
+In diesem Code-Ausschnitt sind bereits mehrere Merkmale von Scriptsprachen erkennbar:
+
+1. Variablen werden nicht deklariert sondern immer direkt zugewiesen (Bsp: `req = request.get_json()`)
+2. Es wird recht viel mit nicht-typisierten Dictionaries gearbeitet (Bsp: `tag = req['push_data']['tag']`)
+3. Es gibt keine Typen, alles ist dynamisch typisiert
