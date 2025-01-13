@@ -56,3 +56,5 @@ WS: [ \t\r\n]+ -> channel(HIDDEN) ;
 COMMENT: '/*' .*? '*/' -> channel(HIDDEN) ;
 
 LINE_COMMENT: '//' ~[\r\n]* -> channel(HIDDEN) ;
+
+INVALID: .+? ;

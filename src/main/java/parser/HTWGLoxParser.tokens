@@ -39,6 +39,7 @@ BOOL_OR=38
 WS=39
 COMMENT=40
 LINE_COMMENT=41
+INVALID=42
 'true'=3
 'false'=4
 'func'=5

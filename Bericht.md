@@ -217,6 +217,8 @@ WS: [ \t\r\n]+ -> channel(HIDDEN) ;
 COMMENT: '/*' .*? '*/' -> channel(HIDDEN) ;
 
 LINE_COMMENT: '//' ~[\r\n]* -> channel(HIDDEN) ;
+
+INVALID: .+? ;
 ```
 
 Parser grammar:
@@ -846,6 +848,7 @@ Fizz
 a) In dem vollständigen Programm sind die eindeutigsten Prozeduralen stellen das schrittweise Aufrufen der einzelnen
 Methoden (Prozeduren), die den Input Stück für Stück zum gewünschten Ergebnis umwandeln.
 Auch das Nutzen der for-loops ist imperativer Stil.
+Zuletzt haben alle utility Funktionen auch noch einen Seiteneffekt, nämlich das verändern ihrer Argumente.
 
 Prozedural.java:
 ```java
@@ -1044,9 +1047,19 @@ verbindung(Start, Abfahrt, Ziel, R) :-
     verbindung(Start, Abfahrt, Umstieg, L),
     append(L, [zug(Umstieg, Uab, Ziel, An)], R).
 ```
-Java code:
+
+Ausgabe für die query `verbindung(konstanz, 8.00, mainz, Reiseplan)` (wenn man sich immer wieder ergebnisse ausgeben lässt):
+
+```prolog
+Reiseplan = [zug(konstanz,8.39,karlsruhe,11.49), zug(karlsruhe,12.06,mainz,13.47)]
+Reiseplan = [zug(konstanz,8.39,offenburg,10.59), zug(offenburg,11.28,mannheim,12.24), zug(mannheim,12.39,mainz,13.18)]
+Reiseplan = [zug(konstanz,9.06,singen,9.31), zug(singen,9.36,stuttgart,11.32), zug(stuttgart,11.51,mannheim,12.28), zug(mannheim,12.39,mainz,13.18)]
+false
+```
 
 ## Aufgabe 6
+
+Java code:
 
 ```java
 import java.io.FileOutputStream;

@@ -22,7 +22,8 @@ public class HTWGLoxParser extends Parser {
 		COMMA=16, COLON=17, SEMICOLON=18, LPAREN=19, RPAREN=20, LCBRACE=21, RCBRACE=22, 
 		ARROW=23, MINUS=24, SLASH=25, STAR=26, PLUS=27, UNEQUAL=28, EXCLAMATION_MARK=29, 
 		EQUAL=30, ASSIGN=31, GREATER_EQUAL=32, LESS_EQUAL=33, LESS=34, GREATER=35, 
-		PERCENT=36, BOOL_AND=37, BOOL_OR=38, WS=39, COMMENT=40, LINE_COMMENT=41;
+		PERCENT=36, BOOL_AND=37, BOOL_OR=38, WS=39, COMMENT=40, LINE_COMMENT=41, 
+		INVALID=42;
 	public static final int
 		RULE_program = 0, RULE_declaration = 1, RULE_func_decl = 2, RULE_param_list = 3, 
 		RULE_var_decl = 4, RULE_typed_name = 5, RULE_type = 6, RULE_statement = 7, 
@@ -61,7 +62,7 @@ public class HTWGLoxParser extends Parser {
 			"COMMA", "COLON", "SEMICOLON", "LPAREN", "RPAREN", "LCBRACE", "RCBRACE", 
 			"ARROW", "MINUS", "SLASH", "STAR", "PLUS", "UNEQUAL", "EXCLAMATION_MARK", 
 			"EQUAL", "ASSIGN", "GREATER_EQUAL", "LESS_EQUAL", "LESS", "GREATER", 
-			"PERCENT", "BOOL_AND", "BOOL_OR", "WS", "COMMENT", "LINE_COMMENT"
+			"PERCENT", "BOOL_AND", "BOOL_OR", "WS", "COMMENT", "LINE_COMMENT", "INVALID"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -2186,7 +2187,7 @@ public class HTWGLoxParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3+\u0122\4\2\t\2\4"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3,\u0122\4\2\t\2\4"+
 		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
 		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
